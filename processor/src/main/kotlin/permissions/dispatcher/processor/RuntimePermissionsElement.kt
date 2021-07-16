@@ -11,8 +11,10 @@ import permissions.dispatcher.OnShowRationale
 import permissions.dispatcher.processor.util.*
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
+import javax.lang.model.util.Elements
+import javax.lang.model.util.Types
 
-class RuntimePermissionsElement(val element: TypeElement) {
+class RuntimePermissionsElement(private val elementUtils: Elements, private val typeUtils: Types, val element: TypeElement) {
     val typeName: TypeName = TypeName.get(element.asType())
     val ktTypeName = element.asType().asTypeName()
     val typeVariables = element.typeParameters.map { TypeVariableName.get(it) }
@@ -44,21 +46,21 @@ class RuntimePermissionsElement(val element: TypeElement) {
         checkDuplicatedValue(onRationaleElements, OnShowRationale::class.java)
         checkPrivateMethods(onRationaleElements, OnShowRationale::class.java)
         checkMethodSignature(onRationaleElements)
-        checkMethodParameters(onRationaleElements, 1, typeMirrorOf("permissions.dispatcher.PermissionRequest"))
+        checkMethodParameters(onRationaleElements, 1, typeUtils, elementUtils.typeMirrorOf("permissions.dispatcher.PermissionRequest"))
     }
 
     private fun validateDeniedMethods() {
         checkDuplicatedValue(onDeniedElements, OnPermissionDenied::class.java)
         checkPrivateMethods(onDeniedElements, OnPermissionDenied::class.java)
         checkMethodSignature(onDeniedElements)
-        checkMethodParameters(onDeniedElements, 0)
+        checkMethodParameters(onDeniedElements, 0, typeUtils)
     }
 
     private fun validateNeverAskMethods() {
         checkDuplicatedValue(onNeverAskElements, OnNeverAskAgain::class.java)
         checkPrivateMethods(onNeverAskElements, OnNeverAskAgain::class.java)
         checkMethodSignature(onNeverAskElements)
-        checkMethodParameters(onNeverAskElements, 0)
+        checkMethodParameters(onNeverAskElements, 0, typeUtils)
         checkSpecialPermissionsWithNeverAskAgain(onNeverAskElements)
     }
 

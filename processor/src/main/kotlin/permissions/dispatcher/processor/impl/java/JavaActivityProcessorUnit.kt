@@ -4,13 +4,14 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
 import permissions.dispatcher.processor.util.typeMirrorOf
 import javax.lang.model.type.TypeMirror
+import javax.lang.model.util.Elements
 
 /**
  * ProcessorUnit implementation for Activity.
  */
-class JavaActivityProcessorUnit : JavaBaseProcessorUnit() {
+class JavaActivityProcessorUnit(private val elementUtils: Elements) : JavaBaseProcessorUnit() {
 
-    override fun getTargetType(): TypeMirror = typeMirrorOf("android.app.Activity")
+    override fun getTargetType(): TypeMirror = elementUtils.typeMirrorOf("android.app.Activity")
 
     override fun getActivityName(targetParam: String): String = targetParam
 

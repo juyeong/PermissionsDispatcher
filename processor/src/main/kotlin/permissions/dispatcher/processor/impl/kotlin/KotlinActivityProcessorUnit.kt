@@ -4,13 +4,14 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import permissions.dispatcher.processor.util.typeMirrorOf
 import javax.lang.model.type.TypeMirror
+import javax.lang.model.util.Elements
 
 /**
  * [permissions.dispatcher.processor.KtProcessorUnit] implementation for Activity classes.
  */
-class KotlinActivityProcessorUnit : KotlinBaseProcessorUnit() {
+class KotlinActivityProcessorUnit(private val elementUtils: Elements) : KotlinBaseProcessorUnit() {
 
-    override fun getTargetType(): TypeMirror = typeMirrorOf("android.app.Activity")
+    override fun getTargetType(): TypeMirror = elementUtils.typeMirrorOf("android.app.Activity")
 
     override fun getActivityName(targetParam: String): String = targetParam
 

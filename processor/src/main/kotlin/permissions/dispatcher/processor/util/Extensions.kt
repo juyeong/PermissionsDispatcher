@@ -6,7 +6,6 @@ import permissions.dispatcher.NeedsPermission
 import permissions.dispatcher.OnNeverAskAgain
 import permissions.dispatcher.OnPermissionDenied
 import permissions.dispatcher.OnShowRationale
-import permissions.dispatcher.processor.TYPE_UTILS
 import javax.lang.model.element.*
 import javax.lang.model.type.TypeMirror
 
@@ -94,11 +93,6 @@ fun <A : Annotation> Element.childElementsAnnotatedWith(annotationClass: Class<A
                 .filter { it.hasAnnotation(annotationClass) }
                 .map { it as ExecutableElement }
                 .toList()
-
-/**
- * Returns whether or not a TypeMirror is a subtype of the provided other TypeMirror.
- */
-fun TypeMirror.isSubtypeOf(ofType: TypeMirror): Boolean = TYPE_UTILS.isSubtype(this, ofType)
 
 fun FileSpec.Builder.addProperties(properties: List<PropertySpec>): FileSpec.Builder {
     properties.forEach { addProperty(it) }

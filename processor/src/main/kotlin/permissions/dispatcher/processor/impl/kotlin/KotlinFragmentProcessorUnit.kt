@@ -3,13 +3,14 @@ package permissions.dispatcher.processor.impl.kotlin
 import com.squareup.kotlinpoet.FunSpec
 import permissions.dispatcher.processor.util.typeMirrorOf
 import javax.lang.model.type.TypeMirror
+import javax.lang.model.util.Elements
 
 /**
  * [permissions.dispatcher.processor.KtProcessorUnit] implementation for Fragments.
  */
-class KotlinFragmentProcessorUnit : KotlinBaseProcessorUnit() {
+class KotlinFragmentProcessorUnit(private val elementUtils: Elements) : KotlinBaseProcessorUnit() {
 
-    override fun getTargetType(): TypeMirror = typeMirrorOf("androidx.fragment.app.Fragment")
+    override fun getTargetType(): TypeMirror = elementUtils.typeMirrorOf("androidx.fragment.app.Fragment")
 
     override fun getActivityName(targetParam: String): String = "$targetParam.requireActivity()"
 

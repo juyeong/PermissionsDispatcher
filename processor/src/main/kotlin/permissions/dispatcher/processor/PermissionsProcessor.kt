@@ -2,8 +2,10 @@ package permissions.dispatcher.processor
 
 import permissions.dispatcher.RuntimePermissions
 import permissions.dispatcher.processor.impl.java.JavaActivityProcessorUnit
+import permissions.dispatcher.processor.impl.java.JavaBaseProcessorUnit
 import permissions.dispatcher.processor.impl.java.JavaFragmentProcessorUnit
 import permissions.dispatcher.processor.impl.kotlin.KotlinActivityProcessorUnit
+import permissions.dispatcher.processor.impl.kotlin.KotlinBaseProcessorUnit
 import permissions.dispatcher.processor.impl.kotlin.KotlinFragmentProcessorUnit
 import permissions.dispatcher.processor.util.findAndValidateProcessorUnit
 import javax.annotation.processing.AbstractProcessor
@@ -17,22 +19,23 @@ import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 import kotlin.properties.Delegates
 
-/** Element Utilities, obtained from the processing environment */
-var ELEMENT_UTILS: Elements by Delegates.notNull()
-/** Type Utilities, obtained from the processing environment */
-var TYPE_UTILS: Types by Delegates.notNull()
-
 class PermissionsProcessor : AbstractProcessor() {
-    private val javaProcessorUnits = listOf(JavaActivityProcessorUnit(), JavaFragmentProcessorUnit())
-    private val kotlinProcessorUnits = listOf(KotlinActivityProcessorUnit(), KotlinFragmentProcessorUnit())
+    private var javaProcessorUnits: List<JavaBaseProcessorUnit> by Delegates.notNull()
+    private var kotlinProcessorUnits: List<KotlinBaseProcessorUnit> by Delegates.notNull()
+    /* Element Utilities, obtained from the processing environment */
+    private var elementUtils: Elements by Delegates.notNull()
+    /* Type Utilities, obtained from the processing environment */
+    private var typeUtils: Types by Delegates.notNull()
     /* Processing Environment helpers */
     private var filer: Filer by Delegates.notNull()
 
     override fun init(processingEnv: ProcessingEnvironment) {
         super.init(processingEnv)
         filer = processingEnv.filer
-        ELEMENT_UTILS = processingEnv.elementUtils
-        TYPE_UTILS = processingEnv.typeUtils
+        elementUtils = processingEnv.elementUtils
+        typeUtils = processingEnv.typeUtils
+        javaProcessorUnits = listOf(JavaActivityProcessorUnit(elementUtils), JavaFragmentProcessorUnit(elementUtils))
+        kotlinProcessorUnits = listOf(KotlinActivityProcessorUnit(elementUtils), KotlinFragmentProcessorUnit(elementUtils))
     }
 
     override fun getSupportedSourceVersion(): SourceVersion? {
@@ -52,7 +55,7 @@ class PermissionsProcessor : AbstractProcessor() {
         roundEnv.getElementsAnnotatedWith(RuntimePermissions::class.java)
                 .sortedBy { it.simpleName.toString() }
                 .forEach {
-                    val rpe = RuntimePermissionsElement(it as TypeElement)
+                    val rpe = RuntimePermissionsElement(elementUtils, typeUtils, it as TypeElement)
                     val kotlinMetadata = it.getAnnotation(Metadata::class.java)
                     if (kotlinMetadata != null) {
                         processKotlin(it, rpe, requestCodeProvider)
@@ -64,13 +67,13 @@ class PermissionsProcessor : AbstractProcessor() {
     }
 
     private fun processKotlin(element: Element, rpe: RuntimePermissionsElement, requestCodeProvider: RequestCodeProvider) {
-        val processorUnit = findAndValidateProcessorUnit(kotlinProcessorUnits, element)
+        val processorUnit = findAndValidateProcessorUnit(kotlinProcessorUnits, typeUtils, element)
         val kotlinFile = processorUnit.createFile(rpe, requestCodeProvider)
         kotlinFile.writeTo(filer)
     }
 
     private fun processJava(element: Element, rpe: RuntimePermissionsElement, requestCodeProvider: RequestCodeProvider) {
-        val processorUnit = findAndValidateProcessorUnit(javaProcessorUnits, element)
+        val processorUnit = findAndValidateProcessorUnit(javaProcessorUnits, typeUtils, element)
         val javaFile = processorUnit.createFile(rpe, requestCodeProvider)
         javaFile.writeTo(filer)
     }

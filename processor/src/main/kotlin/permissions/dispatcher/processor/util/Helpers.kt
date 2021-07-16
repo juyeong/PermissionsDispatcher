@@ -9,13 +9,13 @@ import kotlinx.metadata.KmClassVisitor
 import kotlinx.metadata.jvm.KotlinClassHeader
 import kotlinx.metadata.jvm.KotlinClassMetadata
 import permissions.dispatcher.NeedsPermission
-import permissions.dispatcher.processor.ELEMENT_UTILS
 import permissions.dispatcher.processor.RuntimePermissionsElement
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.TypeMirror
+import javax.lang.model.util.Elements
 
-fun typeMirrorOf(className: String): TypeMirror = ELEMENT_UTILS.getTypeElement(className).asType()
+fun Elements.typeMirrorOf(className: String): TypeMirror = getTypeElement(className).asType()
 
 fun typeNameOf(it: Element): TypeName = TypeName.get(it.asType())
 
